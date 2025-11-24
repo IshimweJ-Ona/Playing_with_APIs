@@ -29,6 +29,7 @@ In this project we also included docker deployment, Nginx reverse proxy, and is 
 - Clean, responsive frontend UI
 
 ## Project Structure 
+```
 movie_web/
 │── backend/
 │     ├── main.py
@@ -48,7 +49,7 @@ movie_web/
 │── Dockerfile
 │── .dockerignore
 │── .gitignore
-
+```
 ## Backend 
 # 1. TMDB API
 The backend loads your API key from .env: `TMDB_API_KEY=your_key_here`
