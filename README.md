@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## MovieStream — Movie Ratings + Trailers Web App
 A web application using FastAPI & HTML,CSS,JS that allows users to browese movies filtering by genre, search, sort and watch official Youtube trailors. The web app is using an API `The Movie Database(TMDB) API`.
 In this project we also included docker deployment, Nginx reverse proxy, and is ready for deployment on the school provided servers using load balancer server. 
@@ -192,3 +193,7 @@ backend movies_backend
     http-response set-header X-Served-By %[srv_name]
 ```
 > On all the servers you must already have installed nginx (web-01&02), and haproxy on lb-01 
+=======
+# Playing_with_APIs
+Learn manipulation and use of external apis and documentation
+>>>>>>> e537893b37f532e19d0b920b04d19e75b6024a1c
