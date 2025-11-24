@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Movie-Trend -Top-Rated</title>
+  <meta name="description" content="Responsive single-file movie website template with search, filters, sorting and trailer modal." />
+  <link rel="stylesheet" href="/static/styles.css">
+    
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">MS</div>
+      <div>
+        <h1>MovieStream</h1>
+        <p class="lead">Discover movies • watch trailers • filter by genre</p>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="search" role="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden style="opacity:.7"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.5"></circle></svg>
+        <input id="q" placeholder="Search movies, actors, year..." aria-label="Search movies">
+      </div>
+
+      <select id="genre" class="select" aria-label="Filter by genre">
+        <option value="all">All genres</option>
+      </select>
+
+      <select id="sort" class="select" aria-label="Sort results">
+        <option value="popular">Most popular</option>
+        <option value="newest">Newest</option>
+        <option value="rating">Rating</option>
+      </select>
+
+      <button id="clear" class="btn">Clear</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="grid" class="grid" aria-live="polite"></div>
+
+    <div id="empty" class="empty" style="display:none;margin-top:14px">No movies found. Try another search or clear filters.</div>
+
+    <div class="footer">
+      <div class="pagination" id="pagination"></div>
+      <div style="color:var(--muted);font-size:13px">Showing <span id="range">0</span> of <span id="total">0</span></div>
+    </div>
+  </main>
+
+  <!-- modal template -->
+  <template id="modal-template">
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal" role="dialog" aria-modal="true">
+        <header>
+          <h3 id="modal-title">Trailer</h3>
+          <button id="modal-close" aria-label="Close">✕</button>
+        </header>
+        <div style="position:relative;padding-top:56.25%">
+          <iframe id="modal-iframe" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border-radius:8px"></iframe>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script src="/ststic/scripts.js"></script>
+</body>
+</html>
