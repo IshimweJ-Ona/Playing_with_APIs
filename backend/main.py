@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import httpx
 from cachetools import TTLCache
+from fastapi.middleware.cors import CORSMiddleware
 
 # ------------------------------
 # Load environment variables
@@ -27,6 +28,15 @@ app = FastAPI(
     description="Backend API for MovieStream app with caching",
     version="1.0.0"
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # ------------------------------
 # Caches (manual async-compatible)
