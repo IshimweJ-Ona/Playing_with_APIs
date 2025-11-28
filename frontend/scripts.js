@@ -38,6 +38,17 @@ function buildUrl(endpoint, params = {}) {
   url.search = qs.toString();
   return url.toString();
 }
+function debounce(fn, wait = 300) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn.apply(this, args), wait); };
+}
+function setLoading(on = true) {
+  if (on) {
+    grid.innerHTML = '<div class="skeleton">Loading…</div>';
+  } else {
+    // no-op, renderMovies will update grid
+  }
+}
 
 // === FETCH GENRES ===
 async function loadGenres() {
@@ -57,14 +68,21 @@ async function loadGenres() {
 
 // === FETCH MOVIES ===
 async function loadMovies() {
-  let params = { page: state.page };
-  if (state.q.trim()) params.q = state.q;
-  if (state.genre !== 'all') params.genre = state.genre;
-  if (state.sort) params.sort = state.sort;
-
-  const res = await fetch(buildUrl('movies', params));
-  const data = await res.json();
-  renderMovies(data);
+  setLoading(true);
+  try {
+    let params = { page: state.page };
+    if (state.q.trim()) params.q = state.q;
+    if (state.genre !== 'all') params.genre = state.genre;
+    if (state.sort) params.sort = state.sort;
+    const res = await fetch(buildUrl('movies', params));
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderMovies(data);
+  } catch (err) {
+    grid.innerHTML = `<div class="error">Error loading movies: ${err.message}</div>`;
+  } finally {
+    setLoading(false);
+  }
 }
 
 // === RENDER MOVIES ===
@@ -146,10 +164,27 @@ async function openTrailer(movieId) {
   close.addEventListener('click', () => backdrop.remove());
   backdrop.addEventListener('click', e => { if (e.target === backdrop) backdrop.remove(); });
   document.body.appendChild(backdrop);
+  trapFocus(backdrop);
+}
+
+function trapFocus(container) {
+  const focusable = container.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  function handle(e) {
+    if (e.key === 'Tab') {
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    } else if (e.key === 'Escape') {
+      container.remove();
+      document.removeEventListener('keydown', handle);
+    }
+  }
+  document.addEventListener('keydown', handle);
+  first?.focus();
 }
 
 // === EVENTS ===
-qInput.addEventListener('input', e => { state.q = e.target.value; state.page = 1; loadMovies(); });
+qInput.addEventListener('input', debounce(e => { state.q = e.target.value; state.page = 1; loadMovies(); }, 350));
 genreSelect.addEventListener('change', e => { state.genre = e.target.value; state.page = 1; loadMovies(); });
 sortSelect.addEventListener('change', e => { state.sort = e.target.value; state.page = 1; loadMovies(); });
 clearBtn.addEventListener('click', () => {
