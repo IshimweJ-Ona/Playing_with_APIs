@@ -53,13 +53,6 @@ movie_web/
 │── nginx/
 │     └── default.conf             (Reverse proxy, caching, compression)
 │
-│── tests/
-│     └── test_health.py           (Basic health endpoint test)
-│
-│── .github/
-│     └── workflows/
-│           └── ci.yml             (GitHub Actions CI/CD)
-│
 │── venv/                          (ignored)
 │── docker-compose.yml
 │── Dockerfile                     (Multi-stage, non-root user)
@@ -323,22 +316,8 @@ sudo systemctl restart moviestream.service
 **Check Nginx:**
 ```bash
 sudo nginx -t
-sudo systemctl restart nginx
+sudo service nginx restart
 ```
-
-## Testing
-
-### Run health check locally:
-```bash
-pytest -v backend/tests/
-```
-
-### CI/CD with GitHub Actions
-The `.github/workflows/ci.yml` automatically:
-- Runs tests on push/PR
-- Builds Docker image
-- Validates dependencies
-
 ## Performance Optimizations
 
 - **Caching**: 600s TTL on genres, movies, trailers
@@ -357,23 +336,3 @@ The `.github/workflows/ci.yml` automatically:
 - HTTPS enforced on load balancer
 - API key stored in `.env` (never committed)
 - Request timeouts prevent hanging connections
-
-## Requirements
-
-### Backend
-- Python 3.11+
-- FastAPI, Uvicorn
-- httpx, cachetools, tenacity
-- python-dotenv
-
-### Server OS
-- Ubuntu 18.04+
-- Python 3.9+
-- Nginx, HAProxy
-- systemd
-
-See `backend/requirements.txt` for exact versions.
-
-## License
-
-School project for API learning. Free to use and modify.
