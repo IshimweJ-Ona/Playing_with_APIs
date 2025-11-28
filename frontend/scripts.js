@@ -1,5 +1,5 @@
 // === CONFIG ===
-const MOVIE_BASE_URL = 'http://localhost:8000/api'; // updated to use backend
+const MOVIE_BASE_URL = '/api'; // use relative path so nginx/docker routing works
 const IMG_BASE = 'https://image.tmdb.org/t/p/w500';
 
 // === STATE ===
@@ -29,9 +29,14 @@ function escapeHtml(s) {
   }[c]));
 }
 function buildUrl(endpoint, params = {}) {
-  const url = new URL(`${MOVIE_BASE_URL}/${endpoint}`);
-  url.search = new URLSearchParams(params);
-  return url;
+  // build a full URL that supports relative MOVIE_BASE_URL (e.g. "/api")
+  const base = MOVIE_BASE_URL.startsWith('/') ? window.location.origin + MOVIE_BASE_URL : MOVIE_BASE_URL;
+  const normalizedBase = base.endsWith('/') ? base.slice(0, -1) : base;
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
+  const url = new URL(`${normalizedBase}/${normalizedEndpoint}`);
+  const qs = new URLSearchParams(params);
+  url.search = qs.toString();
+  return url.toString();
 }
 
 // === FETCH GENRES ===
@@ -131,9 +136,9 @@ async function openTrailer(movieId) {
   const tpl = document.getElementById('modal-template');
   const node = tpl.content.cloneNode(true);
   const backdrop = node.querySelector('#modal-backdrop');
-  const iframe = node.getElementById('modal-iframe');
-  const title = node.getElementById('modal-title');
-  const close = node.getElementById('modal-close');
+  const iframe = node.querySelector('#modal-iframe');
+  const title = node.querySelector('#modal-title');
+  const close = node.querySelector('#modal-close');
 
   title.textContent = 'Trailer';
   iframe.src = `https://www.youtube.com/embed/${video.key}?rel=0`;
