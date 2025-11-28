@@ -7,6 +7,8 @@ from fastapi.responses import FileResponse
 import httpx
 from cachetools import TTLCache
 from fastapi.middleware.cors import CORSMiddleware
+from httpx import AsyncClient, Timeout
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
 
 # ------------------------------
 # Load environment variables
@@ -31,9 +33,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[os.getenv("FRONTEND_ORIGIN", "https://yourdomain.example")],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -78,12 +80,8 @@ async def get_genres():
         return genres_cache["genres"]
 
     url, params = build_url("genre/movie/list")
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url, params=params)
-        if resp.status_code != 200:
-            raise HTTPException(status_code=resp.status_code, detail="Failed to fetch genres")
-        data = resp.json()
-
+    async with AsyncClient() as client:
+        data = await fetch_json(client, url, params)
     genres_cache["genres"] = data
     return data
 
@@ -121,12 +119,8 @@ async def get_movies(
         params["sort_by"] = "popularity.desc"
 
     url, final_params = build_url(endpoint, params)
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url, params=final_params)
-        if resp.status_code != 200:
-            raise HTTPException(status_code=resp.status_code, detail="Failed to fetch movies")
-        data = resp.json()
-
+    async with AsyncClient() as client:
+        data = await fetch_json(client, url, final_params)
     movies_cache[cache_key] = data
     return data
 
@@ -140,11 +134,8 @@ async def get_movie_videos(movie_id: int):
 
     params: dict[str, Union[str, int]] = {}
     url, params = build_url(f"movie/{movie_id}/videos", params)
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url, params=params)
-        if resp.status_code != 200:
-            raise HTTPException(status_code=resp.status_code, detail="Failed to fetch videos")
-        data = resp.json()
+    async with AsyncClient() as client:
+        data = await fetch_json(client, url, params)
         youtube_videos = [v for v in data.get("results", []) if v.get("site") == "YouTube"]
 
     videos_cache[cache_key] = {"results": youtube_videos}
@@ -157,3 +148,13 @@ async def get_movie_videos(movie_id: int):
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok"}
+
+@retry(wait=wait_exponential(multiplier=1, min=1, max=10), stop=stop_after_attempt(3),
+       retry=retry_if_exception_type(httpx.RequestError))
+async def fetch_json(client: AsyncClient, url: str, params: dict):
+    # define a sensible timeout for requests to avoid the undefined variable
+    timeout = Timeout(10.0, connect=5.0)
+    resp = await client.get(url, params=params, timeout=timeout)
+    resp.raise_for_status()
+    return resp.json()
+
