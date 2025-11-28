@@ -22,4 +22,7 @@ EXPOSE 8000
 ENV ENVIRONMENT=production
 
 #Run Fast app using Uvicorn
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+RUN useradd --create-home appuser && chown -R appuser /app
+USER appuser
+# Run with uvicorn instead of gunicorn
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
