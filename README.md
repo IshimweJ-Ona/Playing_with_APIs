@@ -6,7 +6,7 @@ This project includes Docker deployment, Nginx reverse proxy, and is ready for d
 
 ## Live Deployment
 - **Site**: `www.jonaintra.tech/movies/`
-- **YouTube Demo**: [Link pending]
+- **YouTube Demo**: `https://youtu.be/v8okXb8T-pg`
 
 ## Features
 
