@@ -5,7 +5,7 @@ A web application using FastAPI & HTML, CSS, JS that allows users to browse movi
 This project includes Docker deployment, Nginx reverse proxy, and is ready for deployment on school-provided servers with load balancer support.
 
 ## Live Deployment
-- **Site**: `www.jonaintra.tech/`
+- **Site**: `www.jonaintra.tech/movies/`
 - **YouTube Demo**: `https://youtu.be/v8okXb8T-pg`
 
 ## Features
